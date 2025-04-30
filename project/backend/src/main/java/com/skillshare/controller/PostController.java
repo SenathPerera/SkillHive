@@ -71,3 +71,44 @@ public class PostController {
             throw new RuntimeException("Failed to fetch post", e);
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post post) {
+        try {
+            log.debug("Updating post with id: {}", id);
+            return postRepository.findById(id)
+                    .map(existingPost -> {
+                        Post updatedPost = Post.builder()
+                            .id(existingPost.getId())
+                            .userId(existingPost.getUserId())
+                            .title(post.getTitle())
+                            .content(post.getContent())
+                            .media(post.getMedia())
+                            .type(post.getType())
+                            .progressTemplate(post.getProgressTemplate())
+                            .createdAt(existingPost.getCreatedAt())
+                            .updatedAt(Instant.now())
+                            .build();
+                            
+                        return ResponseEntity.ok(postRepository.save(updatedPost));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error updating post with id: {}", id, e);
+            throw new RuntimeException("Failed to update post", e);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable String id) {
+        try {
+            log.debug("Deleting post with id: {}", id);
+            postRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error deleting post with id: {}", id, e);
+            throw new RuntimeException("Failed to delete post", e);
+        }
+    }
+}
+    
