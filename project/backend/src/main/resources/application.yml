@@ -1,0 +1,37 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://sarindusamarasekara:32726@skillsharingplatform.rp8pkvr.mongodb.net/?retryWrites=true&w=majority&appName=skillsharingplatform
+      database: SkillSharingPlatform
+      auto-index-creation: true
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: DEBUG
+    com.skillshare: DEBUG
+
+jwt:
+  secret: your_jwt_secret_key_min_32_chars_long_for_development
+  expiration: 604800000 # 7 days in milliseconds
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174}
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,HEAD
+  allowed-headers: Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+  exposed-headers: Authorization
+  allow-credentials: true
+  max-age: 3600
