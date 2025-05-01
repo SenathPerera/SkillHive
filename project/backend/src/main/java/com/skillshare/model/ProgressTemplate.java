@@ -22,5 +22,9 @@ public class ProgressTemplate {
     @Builder.Default
     private List<String> skillsLearned = new ArrayList<>();
     
-   
+    @Field("project_details")
+    private ProjectDetails projectDetails;
+    
+    @Field("certification_details")
+    private CertificationDetails certificationDetails;
 }
