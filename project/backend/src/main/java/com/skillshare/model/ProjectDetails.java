@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjectDetails {
     private String name;
-    private String desciption;
+    private String description;
     private String status;
     private String githubUrl;
 }
