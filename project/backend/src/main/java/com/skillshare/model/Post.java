@@ -35,7 +35,7 @@ public class Post {
     private ProgressTemplate progressTemplate;
     
     @Builder.Default
-    private List<Achievement> achieveents = new ArrayList<>();
+    private List<Achievement> achievements = new ArrayList<>();
     
     @Field("created_at")
     private Instant createdAt;
