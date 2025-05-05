@@ -13,7 +13,12 @@ export function PostList({ posts }) {
                 {post.userId[0].toUpperCase()}
               </span>
             </div>
-            
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">{post.title}</h3>
+              <p className="text-sm text-gray-500">
+                {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+              </p>
+            </div>
           </div>
           <p className="text-gray-600 whitespace-pre-wrap">{post.content}</p>
         </div>
