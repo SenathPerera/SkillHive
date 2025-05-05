@@ -7,13 +7,17 @@ import { apiService } from '../lib/api';
 import PropTypes from 'prop-types';
 
 export function Dashboard() {
+     // Access authenticated user from global auth store
   const { user } = useAuthStore();
   const navigate = useNavigate();
+   // State to store user's posts and engagement data
   const [posts, setPosts] = useState([]);
+   // UI control states
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Redirect to login page if user is not authenticated
     if (!user) {
       navigate('/auth');
       return;
@@ -23,14 +27,14 @@ export function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        
+// Fetch all posts from backend
         const postsData = await apiService.getPosts();
         
         if (!Array.isArray(postsData)) {
           throw new Error('Invalid response format from server');
         }
 
-        // Filter posts for the current user and sort by creation date
+        // Filter posts for the current user 
         const userPosts = postsData
           .filter(post => post.userId === user.id || post.user_id === user.id)
           .sort((a, b) => {
@@ -38,7 +42,7 @@ export function Dashboard() {
             const dateB = new Date(a.createdAt || a.created_at);
             return dateA - dateB;
           });
-
+ // Fetch likes and comments for each post concurrently
         const postsWithEngagement = await Promise.all(
           userPosts.map(async (post) => {
             try {
@@ -73,11 +77,12 @@ export function Dashboard() {
 
     fetchData();
   }, [user, navigate]);
-
+// Removes a post from the UI after deletion
   const handleDeletePost = (postId) => {
     setPosts(posts.filter(p => p.post.id !== postId));
   };
 
+  // Show loading spinner while data is being fetched
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -88,7 +93,7 @@ export function Dashboard() {
       </div>
     );
   }
-
+// Show error message if fetching fails
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -106,7 +111,7 @@ export function Dashboard() {
       </div>
     );
   }
-
+// Render main dashboard content
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
