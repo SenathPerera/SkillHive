@@ -28,17 +28,7 @@ export const ProgressTemplateShape = {
   certificationDetails: PropTypes.shape(CertificationDetailsShape),
 };
 
-export const PostShape = {
-  id: PropTypes.string.isRequired,
-  user_id: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
-  media: PropTypes.arrayOf(PropTypes.shape(MediaItemShape)),
-  type: PropTypes.oneOf(['skill_share', 'progress_update']).isRequired,
-  template: PropTypes.shape(ProgressTemplateShape),
-  created_at: PropTypes.string.isRequired,
-  updated_at: PropTypes.string.isRequired,
-};
+
 
 export const CommentShape = {
   id: PropTypes.string.isRequired,
