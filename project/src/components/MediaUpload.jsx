@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Upload, X } from 'lucide-react';
 import PropTypes from 'prop-types';
 
+
+// Constants for file validation
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const ACCEPTED_TYPES = {
@@ -10,9 +12,9 @@ const ACCEPTED_TYPES = {
 };
 
 export function MediaUpload({ onUpload, onRemove }) {
-  const [files, setFiles] = useState([]);
-  const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
+  const [files, setFiles] = useState([]); // State to hold uploaded files
+  const [error, setError] = useState('');// State to hold error messages
+  const fileInputRef = useRef(null);// Ref to reset input after file select
 
   const validateFile = async (file) => {
     if (file.size > MAX_FILE_SIZE) {
@@ -55,6 +57,7 @@ export function MediaUpload({ onUpload, onRemove }) {
   const handleFileSelect = async (event) => {
     const selectedFiles = Array.from(event.target.files || []);
     
+    // Check max file limit
     if (files.length + selectedFiles.length > MAX_FILES) {
       setError(`Maximum ${MAX_FILES} files allowed`);
       return;
