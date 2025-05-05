@@ -38,6 +38,19 @@ export function Post({
     }
   };
 
+  const handleEditComment = async (commentId, newContent) => {
+    try {
+      await apiService.updateComment(post.id, commentId, { content: newContent });
+      setComments(comments.map(comment =>
+        comment.id === commentId
+          ? { ...comment, content: newContent }
+          : comment
+      ));
+    } catch (error) {
+      console.error('Failed to edit comment:', error);
+    }
+  };
+
   
 
   const handleToggleLike = async () => {
