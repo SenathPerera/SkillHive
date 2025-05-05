@@ -126,7 +126,15 @@ public class MediaService {
         }
     }
     
-    
+    private String getMediaType(String contentType) {
+        if (contentType.startsWith("image/")) {
+            return "image";
+        } else if (contentType.startsWith("video/")) {
+            return "video";
+        }
+        throw new IllegalArgumentException("Unsupported media type: " + contentType);
+    }
+
 
     
 }
