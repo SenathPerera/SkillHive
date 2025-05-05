@@ -61,19 +61,21 @@ export function CreatePost() {
     credentialUrl: '',
   });
 
+  // Adds a newly uploaded media file to state
   const handleMediaUpload = (file) => {
     setMediaFiles(prev => [...prev, file]);
   };
 
+  // Removes a media file from state by ID
   const handleMediaRemove = (fileId) => {
     setMediaFiles(prev => prev.filter(f => f.id !== fileId));
   };
-
+// Sets the selected template type and resets title
   const handleTemplateSelect = (type) => {
     setSelectedTemplate(type);
     setTitle('');
   };
-
+// Returns additional data depending on selected progress update template
   const getTemplateData = () => {
     if (!selectedTemplate) return undefined;
 
@@ -102,6 +104,7 @@ export function CreatePost() {
         return undefined;
     }
   };
+// Handles form submission, media upload, and post creation
 
   const handleSubmit = async (e) => {
     e.preventDefault();
