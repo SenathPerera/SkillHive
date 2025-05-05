@@ -51,7 +51,14 @@ export function Post({
     }
   };
 
-  
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await apiService.deleteComment(post.id, commentId);
+      setComments(comments.filter(comment => comment.id !== commentId));
+    } catch (error) {
+      console.error('Failed to delete comment:', error);
+    }
+  };
 
   const handleToggleLike = async () => {
     if (!user || isLikeLoading) return;
