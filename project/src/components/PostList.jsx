@@ -2,6 +2,7 @@ import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import PropTypes from 'prop-types';
 
+//Displays a list of posts with basic info and formatting
 export function PostList({ posts }) {
   return (
     <div className="space-y-6">
@@ -27,6 +28,7 @@ export function PostList({ posts }) {
   );
 }
 
+// Type-checking with PropTypes to enforce expected structure for posts
 PostList.propTypes = {
   posts: PropTypes.arrayOf(
     PropTypes.shape({
