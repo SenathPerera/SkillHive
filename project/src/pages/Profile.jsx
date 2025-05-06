@@ -332,6 +332,7 @@ export function Profile() {
           </div>
         </div>
       )}
+      <ChatAssistant user={user} setUser={setUser} />
     </div>
   );
 }
