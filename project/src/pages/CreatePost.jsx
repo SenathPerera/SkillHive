@@ -5,6 +5,8 @@ import { useAuthStore } from '../store/authStore';
 import { MediaUpload } from '../components/MediaUpload';
 import apiService from '../lib/api';
 import PropTypes from 'prop-types';
+import { generateContentSuggestions } from '../utils/titleSuggestions';
+
 
 const PROGRESS_TEMPLATES = [
   {
@@ -44,6 +46,7 @@ export function CreatePost() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contentSuggestions, setContentSuggestions] = useState([]);
 
   // Template-specific state
   const [completedItems, setCompletedItems] = useState([]);
@@ -434,7 +437,12 @@ export function CreatePost() {
             <textarea
               id="content"
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setContent(val);
+                setContentSuggestions(generateContentSuggestions(val));
+              }}
+              
               rows={4}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder={postType === 'skill_share' 
@@ -442,6 +450,25 @@ export function CreatePost() {
                 : "Describe your progress and what you've learned..."
               }
             />
+            {contentSuggestions.length > 0 && (
+  <ul className="mt-2 bg-white border rounded p-2 shadow-sm text-sm">
+    {contentSuggestions.map((suggestion, index) => (
+      <li key={index}>
+        <button
+          type="button"
+          className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded"
+          onClick={() => {
+            setContent(suggestion);
+            setContentSuggestions([]);
+          }}
+        >
+          {suggestion}
+        </button>
+      </li>
+    ))}
+  </ul>
+)}
+
           </div>
 
           <div>
