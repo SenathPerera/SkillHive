@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Upload, Loader2, Edit2, Save, X, Trash2 } from 'lucide-react';
 import { apiService } from '../lib/api';
+import ChatAssistant from '../components/ChatAssistant';
+
 
 export function Profile() {
   const { userId } = useParams();
