@@ -1,35 +1,35 @@
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\LearningPlanRepository.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\CommentRepository.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\service\AuthService.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\LikeRepository.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Achievement.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\config\SecurityConfig.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\LearningPlan.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Notification.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\MediaController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\NotificationController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\CertificationDetails.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\config\JwtAuthFilter.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\UserRepository.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\config\WebSecurityConfig.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\service\JwtService.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Like.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\ProgressTemplate.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\SkillSharingPlatformApplication.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\User.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\service\MediaService.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\NotificationRepository.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\LearningPlanController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Comment.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\CommentController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\PostController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Post.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\config\JwtConfig.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\config\MongoConfig.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\UserController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\MediaItem.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\AuthController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\Lesson.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\controller\LikeController.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\model\ProjectDetails.java
-D:\PAF Project\SkillHive-Learning-Platform\project\backend\src\main\java\com\skillshare\repository\PostRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\service\MediaService.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\LearningPlanRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\LearningPlan.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Notification.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\NotificationController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Comment.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\service\JwtService.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\ProgressTemplate.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\PostRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\config\JwtConfig.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\PostController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\AuthController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Post.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\CommentRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\LikeController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Lesson.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\service\AuthService.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Like.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\UserRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\config\MongoConfig.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\LearningPlanController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\config\JwtAuthFilter.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\NotificationRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\SkillSharingPlatformApplication.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\repository\LikeRepository.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\MediaItem.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\CertificationDetails.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\ProjectDetails.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\config\WebSecurityConfig.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\MediaController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\UserController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\User.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\controller\CommentController.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\config\SecurityConfig.java
+C:\Users\USER\Desktop\Final_SkillHive\SkillHive\project\backend\src\main\java\com\skillshare\model\Achievement.java
