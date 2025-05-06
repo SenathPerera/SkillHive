@@ -48,7 +48,7 @@ export default function ChatAssistant({ user, setUser }) {
     addMessage(messageText, 'user');
     setInput('');
 
-    const text = messageText.toLowerCase();
+    const text = typeof messageText === 'string' ? messageText.toLowerCase() : '';
 
     // Example logic
     if (text.includes('change') && text.includes('email')) {
