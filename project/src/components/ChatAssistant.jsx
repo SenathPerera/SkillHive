@@ -9,6 +9,7 @@ export default function ChatAssistant({ user, setUser }) {
   const [input, setInput] = useState('');
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+  const [expectingField, setExpectingField] = useState(null);
 
   // Setup speech recognition
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function ChatAssistant({ user, setUser }) {
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       setInput(transcript);
-      handleSend(transcript);
+      setTimeout(() => handleSend(transcript), 0);
     };
 
     recognition.onend = () => {
@@ -47,44 +48,85 @@ export default function ChatAssistant({ user, setUser }) {
     if (!messageText) return;
     addMessage(messageText, 'user');
     setInput('');
-
+  
     const text = typeof messageText === 'string' ? messageText.toLowerCase() : '';
-
-    // Example logic
-    if (text.includes('change') && text.includes('email')) {
-      addMessage('Sure, what is your new email?', 'bot');
-      return;
-    }
-
-    if (/\S+@\S+\.\S+/.test(text)) {
-      try {
-        const updated = await apiService.updateProfile(user.id, { email: text });
-        setUser({ ...user, ...updated });
-        addMessage('Your email has been updated!', 'bot');
-      } catch (err) {
-        addMessage("Failed to update email. Please try again.", 'bot');
+  
+    // Handle expected fields
+    if (expectingField) {
+      const value = messageText.trim();
+  
+      const fieldMap = {
+        email: { label: 'email', payload: { email: value } },
+        address: { label: 'address', payload: { address: value } },
+        firstName: { label: 'first name', payload: { firstName: value } },
+        lastName: { label: 'last name', payload: { lastName: value } },
+        birthday: { label: 'birthday', payload: { birthday: value } },
+      };
+  
+      const fieldInfo = fieldMap[expectingField];
+  
+      if (expectingField === 'email') {
+        const emailMatch = value.match(/\b\S+@\S+\.\S+\b/);
+        if (!emailMatch) {
+          addMessage("That doesn't look like a valid email. Try again?", 'bot');
+          return;
+        }
+        fieldInfo.payload.email = emailMatch[0];
       }
-      return;
-    }
-
-    if (text.includes('address')) {
-      addMessage('Please enter your new address.', 'bot');
-      return;
-    }
-
-    if (text.length > 10 && text.includes('street')) {
-      try {
-        const updated = await apiService.updateProfile(user.id, { address: text });
-        setUser({ ...user, ...updated });
-        addMessage('Your address has been updated!', 'bot');
-      } catch (err) {
-        addMessage("Couldn't update address. Try again later.", 'bot');
+  
+      if (expectingField === 'birthday') {
+        const isValidDate = !isNaN(Date.parse(value));
+        if (!isValidDate) {
+          addMessage("That doesn't look like a valid date. Use YYYY-MM-DD.", 'bot');
+          return;
+        }
       }
+  
+      try {
+        const updated = await apiService.updateProfile(user.id, fieldInfo.payload);
+        setUser({ ...user, ...updated });
+        addMessage(`Your ${fieldInfo.label} has been updated to "${value}"!`, 'bot');
+      } catch (err) {
+        addMessage(`Failed to update ${fieldInfo.label}. Try again later.`, 'bot');
+      }
+  
+      setExpectingField(null);
       return;
     }
-
-    addMessage("Sorry, I didn't understand. Try saying 'change email to john@example.com'.", 'bot');
+  
+    // Detect intent and set field
+    if (text.includes('change') || text.includes('update')) {
+      if (text.includes('email')) {
+        addMessage('Sure, what is your new email?', 'bot');
+        setExpectingField('email');
+        return;
+      }
+      if (text.includes('address')) {
+        addMessage('What is your new address?', 'bot');
+        setExpectingField('address');
+        return;
+      }
+      if (text.includes('first name')) {
+        addMessage('What is your new first name?', 'bot');
+        setExpectingField('firstName');
+        return;
+      }
+      if (text.includes('last name')) {
+        addMessage('What is your new last name?', 'bot');
+        setExpectingField('lastName');
+        return;
+      }
+      if (text.includes('birthday') || text.includes('birth date')) {
+        addMessage('Please enter your birth date in YYYY-MM-DD format.', 'bot');
+        setExpectingField('birthday');
+        return;
+      }
+    }
+  
+    addMessage("I didn't get that. Try saying things like 'change my first name' or 'update my birthday'.", 'bot');
   };
+  
+
 
   return (
     <div className="fixed bottom-4 right-4 w-80 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 z-50">
