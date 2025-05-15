@@ -41,91 +41,97 @@ export default function ChatAssistant({ user, setUser }) {
   };
 
   const handleSend = async (messageText = input.trim()) => {
-    if (!messageText) return;
-    addMessage(messageText, 'user');
-    setInput('');
+  if (!messageText) return;
+  addMessage(messageText, 'user');
+  setInput('');
 
-    const text = typeof messageText === 'string' ? messageText.toLowerCase() : '';
+  const text = typeof messageText === 'string' ? messageText.toLowerCase() : '';
 
-    if (expectingField) {
-      const value = messageText.trim();
-      const fieldMap = {
-        email: { label: 'email', payload: { email: value } },
-        address: { label: 'address', payload: { address: value } },
-        firstName: { label: 'first name', payload: { firstName: value } },
-        lastName: { label: 'last name', payload: { lastName: value } },
-        birthday: { label: 'birthday', payload: { birthday: value } },
-      };
+  if (expectingField) {
+    const value = messageText.trim();
+    const fieldMap = {
+      email: { label: 'email', payload: { email: value } },
+      address: { label: 'address', payload: { address: value } },
+      firstName: { label: 'first name', payload: { firstName: value } },
+      lastName: { label: 'last name', payload: { lastName: value } },
+      birthday: { label: 'birthday', payload: { birthday: value } },
+    };
 
-      const fieldInfo = fieldMap[expectingField];
+    const fieldInfo = fieldMap[expectingField];
 
-      if (expectingField === 'email') {
-        const emailMatch = value.match(/\b\S+@\S+\.\S+\b/);
-        if (!emailMatch) {
-          addMessage("That doesn't look like a valid email. Try again?", 'bot');
-          return;
-        }
-        fieldInfo.payload.email = emailMatch[0];
+    if (expectingField === 'email') {
+      const emailMatch = value.match(/\b\S+@\S+\.\S+\b/);
+      if (!emailMatch) {
+        addMessage("That doesn't look like a valid email. Try again?", 'bot');
+        return;
+      }
+      fieldInfo.payload.email = emailMatch[0];
+    }
+
+    if (expectingField === 'birthday') {
+      const isValidDate = !isNaN(Date.parse(value));
+      if (!isValidDate) {
+        addMessage("That doesn't look like a valid date. Use YYYY-MM-DD.", 'bot');
+        return;
+      }
+    }
+
+    try {
+      if (!user?.id) {
+        console.warn("ChatAssistant: user.id is undefined");
+        addMessage("You're not signed in or your session has expired.", 'bot');
+        return;
       }
 
-      if (expectingField === 'birthday') {
-        const isValidDate = !isNaN(Date.parse(value));
-        if (!isValidDate) {
-          addMessage("That doesn't look like a valid date. Use YYYY-MM-DD.", 'bot');
-          return;
-        }
-      }
+      // Send PATCH request to update one field
+      await apiService.updateProfileChatAssistant(user.id, fieldInfo.payload);
 
-      try {
-        if (!user?.id) {
-          console.warn("ChatAssistant: user.id is undefined");
-          addMessage("You're not signed in or your session has expired.", 'bot');
-          return;
-        }
+      // Re-fetch the full profile to ensure we have all fields
+      const refreshed = await apiService.getPrivateProfile(user.id);
 
-        const updated = await apiService.updateProfileChatAssistant(user.id, fieldInfo.payload);
-        console.log("Updated user:", updated);
-        setUser((prev) => ({ ...prev, ...updated, id: prev.id }));
-        addMessage(`Your ${fieldInfo.label} has been updated to "${value}"!`, 'bot');
-      } catch (error) {
-        console.error("Update failed:", error);
-        addMessage(`Failed to update ${fieldInfo.label}. Try again later.`, 'bot');
-      }
+      setUser(refreshed);
+      addMessage(`Your ${fieldInfo.label} has been updated to "${value}"!`, 'bot');
+    } catch (error) {
+      console.error("Update failed:", error);
+      addMessage(`Failed to update ${fieldInfo.label}. Try again later.`, 'bot');
+    }
 
-      setExpectingField(null);
+    setExpectingField(null);
+    return;
+  }
+
+  // Detect which field to change
+  if (text.includes('change') || text.includes('update')) {
+    if (text.includes('email')) {
+      addMessage('Sure, what is your new email?', 'bot');
+      setExpectingField('email');
       return;
     }
-
-    if (text.includes('change') || text.includes('update')) {
-      if (text.includes('email')) {
-        addMessage('Sure, what is your new email?', 'bot');
-        setExpectingField('email');
-        return;
-      }
-      if (text.includes('address')) {
-        addMessage('What is your new address?', 'bot');
-        setExpectingField('address');
-        return;
-      }
-      if (text.includes('first name')) {
-        addMessage('What is your new first name?', 'bot');
-        setExpectingField('firstName');
-        return;
-      }
-      if (text.includes('last name')) {
-        addMessage('What is your new last name?', 'bot');
-        setExpectingField('lastName');
-        return;
-      }
-      if (text.includes('birthday') || text.includes('birth date')) {
-        addMessage('Please enter your birth date in YYYY-MM-DD format.', 'bot');
-        setExpectingField('birthday');
-        return;
-      }
+    if (text.includes('address')) {
+      addMessage('What is your new address?', 'bot');
+      setExpectingField('address');
+      return;
     }
+    if (text.includes('first name')) {
+      addMessage('What is your new first name?', 'bot');
+      setExpectingField('firstName');
+      return;
+    }
+    if (text.includes('last name')) {
+      addMessage('What is your new last name?', 'bot');
+      setExpectingField('lastName');
+      return;
+    }
+    if (text.includes('birthday') || text.includes('birth date')) {
+      addMessage('Please enter your birth date in YYYY-MM-DD format.', 'bot');
+      setExpectingField('birthday');
+      return;
+    }
+  }
 
-    addMessage("I didn't get that. Try saying things like 'change my first name' or 'update my birthday'.", 'bot');
-  };
+  addMessage("I didn't get that. Try saying things like 'change my first name' or 'update my birthday'.", 'bot');
+};
+
 
   return (
     <div className="fixed bottom-6 right-6 w-96 max-w-full bg-white shadow-xl rounded-xl border border-gray-200 z-50">

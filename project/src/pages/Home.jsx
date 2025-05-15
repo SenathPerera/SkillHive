@@ -9,69 +9,73 @@ export function Home() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  if (!user || !user.id) return;
 
-        const userProfile = await apiService.getPrivateProfile(user?.id);
-        const followingIds = new Set(userProfile?.followingIds || []);
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const allPosts = await apiService.getPosts();
-        const filteredPosts = allPosts.filter(post => {
-          const postUserId = post.user_id || post.userId;
-          return followingIds.has(postUserId) || postUserId === user?.id;
-        });
+      const userProfile = await apiService.getPrivateProfile(user.id);
+      const followingIds = new Set(userProfile?.followingIds || []);
 
-        const sortedPosts = filteredPosts.sort((a, b) => {
-          const dateA = new Date(b.createdAt || b.created_at);
-          const dateB = new Date(a.createdAt || a.created_at);
-          return dateA - dateB;
-        });
+      const allPosts = await apiService.getPosts();
+      const filteredPosts = allPosts.filter(post => {
+        const postUserId = post.user_id || post.userId;
+        return followingIds.has(postUserId) || postUserId === user.id;
+      });
 
-        const postsWithEngagement = await Promise.all(
-          sortedPosts.map(async (post) => {
-            try {
-              const [comments, likes] = await Promise.all([
-                apiService.getComments(post.id),
-                apiService.getLikes(post.id)
-              ]);
+      const sortedPosts = filteredPosts.sort((a, b) => {
+        const dateA = new Date(b.createdAt || b.created_at);
+        const dateB = new Date(a.createdAt || a.created_at);
+        return dateA - dateB;
+      });
 
-              return {
-                post,
-                comments: Array.isArray(comments) ? comments : [],
-                likes: Array.isArray(likes) ? likes : [],
-                userLike: Array.isArray(likes)
-                  ? likes.find(like => like.userId === user?.id || like.user_id === user?.id)
-                  : undefined
-              };
-            } catch (error) {
-              console.error(`Error fetching engagement for post ${post.id}:`, error);
-              return { post, comments: [], likes: [], userLike: undefined };
-            }
-          })
-        );
+      const postsWithEngagement = await Promise.all(
+        sortedPosts.map(async (post) => {
+          try {
+            const [comments, likes] = await Promise.all([
+              apiService.getComments(post.id),
+              apiService.getLikes(post.id)
+            ]);
 
-        setPosts(postsWithEngagement);
-      } catch (error) {
-        setError(error.message || 'Failed to fetch posts');
-      } finally {
-        setLoading(false);
-      }
-    };
+            return {
+              post,
+              comments: Array.isArray(comments) ? comments : [],
+              likes: Array.isArray(likes) ? likes : [],
+              userLike: Array.isArray(likes)
+                ? likes.find(like => like.userId === user.id || like.user_id === user.id)
+                : undefined
+            };
+          } catch (error) {
+            console.error(`Error fetching engagement for post ${post.id}:`, error);
+            return { post, comments: [], likes: [], userLike: undefined };
+          }
+        })
+      );
 
-    fetchPosts();
-  }, [user]);
+      setPosts(postsWithEngagement);
+    } catch (error) {
+      setError(error.message || 'Failed to fetch posts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPosts();
+}, [user?.id]);
+
+
 
   const handleDeletePost = (postId) => {
     setPosts(posts.filter(p => p.post.id !== postId));
   };
 
-  if (loading) {
+  if (user && loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center space-x-2">

@@ -22,10 +22,14 @@ api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response) {
-      if (error.response.status === 401) {
-        localStorage.removeItem('authToken');
-        window.location.href = '/auth';
-      }
+     if (error.response.status === 401) {
+  localStorage.removeItem('authToken');
+  // Only redirect if not explicitly disabled
+  if (error.config?.redirectOn401 !== false) {
+    window.location.href = '/auth';
+  }
+}
+
       throw new Error(error.response.data?.message || 'Server error occurred');
     } else if (error.request) {
       throw new Error('Server is not responding. Please try again later.');
@@ -71,8 +75,9 @@ export const apiService = {
   },
 
   updateProfileChatAssistant: async (userId, userData) => {
-    return await api.patch(`/users/${userId}`, userData);
-  },
+  return await api.patch(`/users/${userId}`, userData, { redirectOn401: false });
+},
+
 
   deleteProfile: async (userId) => {
     return await api.delete(`/users/${userId}`);
