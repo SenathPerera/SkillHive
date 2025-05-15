@@ -60,6 +60,8 @@ public class WebSecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/users", "/api/users/**", "/users/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/*/private").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/users/**", "/users/**").authenticated()
+
 
 
                 .anyRequest().authenticated()

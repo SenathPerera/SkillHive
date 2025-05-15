@@ -21,10 +21,24 @@ export function Auth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authError) {
-      setError(authError);
-    }
+    if (authError) setError(authError);
   }, [authError]);
+
+  useEffect(() => {
+    const handleSocialLogin = async () => {
+      if (isAuthenticated && auth0User) {
+        try {
+          const token = await getAccessTokenSilently();
+          const response = await signIn(auth0User.email, token, true);
+          if (response) navigate('/', { replace: true });
+        } catch (error) {
+          console.error('Social login error:', error);
+          setError('Failed to complete social login');
+        }
+      }
+    };
+    handleSocialLogin();
+  }, [isAuthenticated, auth0User, getAccessTokenSilently, signIn, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +62,7 @@ export function Auth() {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           address: address.trim(),
-          birthday
+          birthday,
         });
       } else {
         await signIn(email.trim(), password);
@@ -74,31 +88,9 @@ export function Auth() {
     clearError();
   };
 
-  const handleSocialLoginSuccess = async () => {
-    try {
-      if (!auth0User?.email) {
-        setError('Auth0 login did not return an email address');
-        return;
-      }
-
-      const token = await getAccessTokenSilently();
-      const response = await signIn(auth0User.email, token, true);
-
-      if (response) {
-        setError('');
-        navigate('/', { replace: true });
-      } else {
-        setError('Unable to sign in with social account');
-      }
-    } catch (error) {
-      console.error('Social login error:', error);
-      setError('Failed to complete social login');
-    }
-  };
-
-  const handleSocialLoginError = (error) => {
+  const handleSocialLoginSuccess = () => setError('');
+  const handleSocialLoginError = (error) =>
     setError(error.message || 'Social login failed');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -106,14 +98,14 @@ export function Auth() {
         <div className="flex justify-center">
           <Share2 className="h-12 w-12 text-blue-600" />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           {isSignUp ? 'Join SkillHive' : 'Welcome back to SkillHive'}
         </h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="bg-white py-8 px-6 shadow-md rounded-lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {isSignUp && (
               <>
                 <div className="grid grid-cols-2 gap-4">
@@ -127,7 +119,7 @@ export function Auth() {
                       required
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
@@ -140,7 +132,7 @@ export function Auth() {
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -151,10 +143,10 @@ export function Auth() {
                   </label>
                   <textarea
                     id="address"
+                    rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    rows={2}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -168,7 +160,7 @@ export function Auth() {
                     required
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </>
@@ -176,7 +168,7 @@ export function Auth() {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+                Email Address
               </label>
               <input
                 id="email"
@@ -184,7 +176,7 @@ export function Auth() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -198,32 +190,27 @@ export function Auth() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
-            {error && (
-              <div className="text-red-600 text-sm">{error}</div>
-            )}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isSubmitting ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+              {isSubmitting ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
           </form>
 
-          <SocialLogin
-            onSuccess={handleSocialLoginSuccess}
-            onError={handleSocialLoginError}
-          />
+          <SocialLogin onSuccess={handleSocialLoginSuccess} onError={handleSocialLoginError} />
 
-          <div className="mt-6">
+          <div className="mt-6 text-center">
             <button
               onClick={handleToggleMode}
-              className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
+              className="text-sm font-medium text-blue-600 hover:text-blue-500"
             >
               {isSignUp
                 ? 'Already have an account? Sign in'

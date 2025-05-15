@@ -130,6 +130,57 @@ public ResponseEntity<User> getPrivateProfile(@PathVariable String id) {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> patchUser(
+        @PathVariable String id,
+        @RequestBody Map<String, Object> updates
+        ) {
+            try {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                String userId = auth.getName();
+
+                if (!userId.equals(id)) {
+                    return ResponseEntity.status(403).build();
+                }
+
+            return userRepository.findById(id)
+                .map(existingUser -> {
+                    if (updates.containsKey("firstName"))
+                        existingUser.setFirstName((String) updates.get("firstName"));
+                    if (updates.containsKey("lastName"))
+                        existingUser.setLastName((String) updates.get("lastName"));
+                    if (updates.containsKey("email"))
+                        existingUser.setEmail((String) updates.get("email"));
+                    if (updates.containsKey("address"))
+                        existingUser.setAddress((String) updates.get("address"));
+                    if (updates.containsKey("birthday"))
+                        existingUser.setBirthday((String) updates.get("birthday"));
+                    if (updates.containsKey("avatarUrl"))
+                        existingUser.setAvatarUrl((String) updates.get("avatarUrl"));
+                    if (updates.containsKey("bio"))
+                        existingUser.setBio((String) updates.get("bio"));
+
+                    if (updates.containsKey("password")) {
+                        String rawPassword = (String) updates.get("password");
+                        if (rawPassword != null && !rawPassword.isEmpty()) {
+                            existingUser.setPassword(passwordEncoder.encode(rawPassword));
+                        }
+                    }
+
+                    existingUser.setUpdatedAt(Instant.now());
+
+                    User savedUser = userRepository.save(existingUser);
+                    savedUser.setPassword(null);
+                    return ResponseEntity.ok(savedUser);
+                })
+                .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            log.error("Error patching user: {}", id, e);
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         try {
