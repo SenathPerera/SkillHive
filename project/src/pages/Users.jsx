@@ -19,13 +19,21 @@ export function Users() {
       try {
         setLoading(true);
         setError(null);
+
+        // verify we have a user id before calling private endpoint
+        console.log('Users.jsx – current user:', user);
+        if (!user || !user.id) {
+          console.warn('Users.jsx – no user.id, skipping getPrivateProfile');
+          return;
+        }
+
         const currentUserProfile = await apiService.getPrivateProfile(user.id);
         const following = new Set(currentUserProfile?.followingIds || []);
-    
+
         // Get all users
         const allUsers = await apiService.getAllUsers();
         console.log('All users:', allUsers); // Log the response
-    
+
         const otherUsers = allUsers.filter(u => u.id !== user.id);
         setUsers(otherUsers);
         setFollowingMap(
@@ -40,7 +48,6 @@ export function Users() {
         setLoading(false);
       }
     };
-    
 
     if (user) {
       fetchUsers();
