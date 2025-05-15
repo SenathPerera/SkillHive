@@ -199,6 +199,28 @@ export const apiService = {
     return await api.delete(`/learning-plans/${id}`);
   },
 
+  enrollLearningPlan: async (id) => {
+    return await api.post(`/learning-plans/${id}/progress/enroll`);
+  },
+
+  logTimeSpent: async (planId, lessonIndex, seconds) => {
+    return await api.post(`/learning-plans/${planId}/progress/time-log`, {
+      lessonIndex,
+      seconds
+    });
+  },
+
+  getPlanProgress: async (id) => {
+    return await api.get(`/learning-plans/${id}/progress`);
+  },
+
+  updatePlanProgress: async (id, completedLessons) => {
+    return await api.put(`/learning-plans/${id}/progress`, completedLessons);
+  },
+
+  deletePlanProgress: async (id) =>
+  await api.delete(`/learning-plans/${id}/progress`),
+
   getNotifications: async (unreadOnly = false) => {
     return await api.get('/notifications', { params: { unreadOnly } });
   },

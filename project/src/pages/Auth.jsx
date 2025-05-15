@@ -17,7 +17,7 @@ export function Auth() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { signIn, signUp, error: authError, clearError } = useAuthStore();
-  const { user: auth0User, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { user: auth0User, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +55,7 @@ export function Auth() {
         if (!birthday) {
           throw new Error('Birthday is required');
         }
+
         await signUp({
           email: email.trim(),
           password,

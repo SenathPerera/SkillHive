@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, X, Upload } from 'lucide-react';
-import { apiService } from '../lib/api';
+import { apiService, api } from '../lib/api';
 
 const SKILL_LEVELS = ['beginner', 'intermediate', 'pro'];
 
@@ -56,6 +56,33 @@ export function CreateLearningPlan() {
 
   const removeLesson = (index) => {
     setLessons(lessons.filter((_, i) => i !== index));
+  };
+
+  //upload PDF for a lesson
+  const handleDocumentUpload = async (lessonIndex, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await api.post('/media', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const docId = res.id;
+      const updated = [...lessons];
+      updated[lessonIndex].documentIds.push(docId);
+      setLessons(updated);
+    } catch (err) {
+      console.error('Error uploading document:', err);
+      setError('Failed to upload document');
+    }
+  };
+
+  //remove a document from a lesson
+  const removeDocument = (lessonIndex, docId) => {
+    const updated = [...lessons];
+    updated[lessonIndex].documentIds = updated[lessonIndex].documentIds.filter(d => d !== docId);
+    setLessons(updated);
   };
 
   const handleSubmit = async (e) => {
@@ -257,6 +284,76 @@ export function CreateLearningPlan() {
                     placeholder="What will this lesson teach?"
                     disabled={isSubmitting}
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    YouTube Video URL (optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={lesson.videoId}
+                    onChange={(e) => handleLessonChange(index, 'videoId', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={isSubmitting}
+                  />
+                  {lesson.videoId && (
+                    <p className="mt-1 text-sm text-blue-600">
+                      <a
+                        href={lesson.videoId}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        View Video
+                      </a>
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Resources (PDF)</label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={(e) => handleDocumentUpload(index, e)}
+                      className="hidden"
+                      id={`doc-upload-${index}`}
+                      disabled={isSubmitting}
+                    />
+                    <label
+                      htmlFor={`doc-upload-${index}`}
+                      className="flex items-center justify-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+                    >
+                      <Upload className="h-4 w-4 mr-1" />
+                      Add Document
+                    </label>
+                  </div>
+                  {lesson.documentIds.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {lesson.documentIds.map((docId, docIdx) => (
+                        <li key={docIdx} className="flex items-center space-x-2">
+                          <a
+                            href={`/api/media/${docId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            Document {docIdx + 1}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => removeDocument(index, docId)}
+                            className="text-red-600 hover:text-red-800"
+                            disabled={isSubmitting}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             ))}
