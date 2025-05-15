@@ -125,32 +125,36 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome + Create */}
-        <div className="bg-white rounded-lg shadow p-8 mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">
-              Welcome back, {user.firstName.split(' ')[0]}! 👋
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Track your progress and share your learning journey.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/create-post')}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            <Plus className="mr-2" /> Create Post
-          </button>
-        </div>
+      {/* Welcome + Create */}
+<div className="bg-white rounded-lg shadow p-8 mb-8">
+  <div className="flex items-center justify-between">
+    <div>
+      <h1 className="text-3xl font-bold">
+        Welcome back, {user.firstName.split(' ')[0]}! 👋
+      </h1>
+      <p className="mt-2 text-gray-600">
+        Track your progress and share your learning journey.
+      </p>
+    </div>
+    <button
+      onClick={() => navigate('/create-post')}
+      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    >
+      <Plus className="mr-2" /> Create Post
+    </button>
+  </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <StatCard icon={<BookOpen />}  label="Posts"         value={posts.length}                                color="blue"   />
-          <StatCard icon={<Award />}     label="Total Likes"   value={posts.reduce((s, w) => s + w.likes.length, 0)} color="green"  />
-          <StatCard icon={<Code />}      label="Comments"      value={posts.reduce((s, w) => s + w.comments.length, 0)} color="purple" />
-          <StatCard icon={<Bell />}      label="Notifications" value={0}                                        color="orange" />
-          <StatCard icon={<Award />}     label="Streak (days)" value={streak}                                    color="green"  />
-        </div>
+  {/* Quick Stats - moved under the flex row */}
+  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+    <StatCard icon={<BookOpen />}  label="Posts"         value={posts.length}                                color="blue"   />
+    <StatCard icon={<Award />}     label="Total Likes"   value={posts.reduce((s, w) => s + w.likes.length, 0)} color="green"  />
+    <StatCard icon={<Code />}      label="Comments"      value={posts.reduce((s, w) => s + w.comments.length, 0)} color="purple" />
+    <StatCard icon={<Bell />}      label="Notifications" value={0}                                        color="orange" />
+    <StatCard icon={<Award />}     label="Streak (days)" value={streak}                                    color="green"  />
+  </div>
+</div>
+
+        
 
         {/* Posts */}
         {posts.length > 0 ? (
