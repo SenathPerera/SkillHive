@@ -194,6 +194,13 @@ export const apiService = {
     return await api.post(`/learning-plans/${id}/progress/enroll`);
   },
 
+  logTimeSpent: async (planId, lessonIndex, seconds) => {
+    return await api.post(`/learning-plans/${planId}/progress/time-log`, {
+      lessonIndex,
+      seconds
+    });
+  },
+
   getPlanProgress: async (id) => {
     return await api.get(`/learning-plans/${id}/progress`);
   },
