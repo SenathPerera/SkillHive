@@ -71,5 +71,29 @@ public class ProgressController {
       progressRepo.findByUserIdAndPlanId(userId, planId)
                   .forEach(progressRepo::delete);
       return ResponseEntity.noContent().build();
-}
+    }
+
+    public static class TimeLogRequest {
+        public int lessonIndex;
+        public long seconds;
+    }
+
+    @PostMapping("/time-log")
+    public ResponseEntity<UserPlanProgress> logTime(
+        @PathVariable String planId,
+        @RequestBody TimeLogRequest req
+    ) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return progressRepo.findFirstByUserIdAndPlanId(userId, planId)
+            .map(progress -> {
+                // accumulate time
+                var map = progress.getTimeSpentPerLesson();
+                map.put(req.lessonIndex,
+                        map.getOrDefault(req.lessonIndex, 0L) + req.seconds);
+                progress.setTimeSpentPerLesson(map);
+                progress.setUpdatedAt(Instant.now());
+                return ResponseEntity.ok(progressRepo.save(progress));
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
 }
