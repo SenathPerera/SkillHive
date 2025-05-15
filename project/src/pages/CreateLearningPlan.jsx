@@ -36,8 +36,6 @@ export function CreateLearningPlan() {
     if (!file) return;
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
       const response = await apiService.uploadMedia(file);
       setThumbnail(response.id);
     } catch (error) {
@@ -47,9 +45,9 @@ export function CreateLearningPlan() {
   };
 
   const handleLessonChange = (index, field, value) => {
-    const updatedLessons = [...lessons];
-    updatedLessons[index] = { ...updatedLessons[index], [field]: value };
-    setLessons(updatedLessons);
+    const updated = [...lessons];
+    updated[index][field] = value;
+    setLessons(updated);
   };
 
   const addLesson = () => {
@@ -75,155 +73,148 @@ export function CreateLearningPlan() {
       if (!duration.trim()) throw new Error('Duration is required');
       if (!lessons[0].title.trim()) throw new Error('At least one lesson is required');
 
-      const filteredLessons = lessons.filter(lesson => lesson.title.trim());
+      const validLessons = lessons.filter(l => l.title.trim());
 
-      const learningPlan = {
+      const payload = {
         title: title.trim(),
         description: description.trim(),
         skill,
         skillLevel,
         duration: duration.trim(),
         thumbnail,
-        lessons: filteredLessons,
+        lessons: validLessons,
       };
 
-      await apiService.createLearningPlan(learningPlan);
+      await apiService.createLearningPlan(payload);
       navigate('/learning-plans');
-    } catch (error) {
-      setError(error.message || 'Failed to create learning plan');
-      console.error('Error creating learning plan:', error);
+    } catch (err) {
+      setError(err.message || 'Failed to create learning plan');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Create Learning Plan</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Create Learning Plan</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-lg shadow-sm p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded-xl p-6 space-y-6"
+        >
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md text-sm">
               {error}
             </div>
           )}
 
+          {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Title
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Complete Web Development Bootcamp"
+              className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="e.g., Fullstack Web Bootcamp"
               disabled={isSubmitting}
             />
           </div>
 
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe what learners will achieve..."
+              className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="What will learners accomplish?"
               disabled={isSubmitting}
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Skill & Level */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Skill Category
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Skill Category</label>
               <select
                 value={skill}
                 onChange={(e) => setSkill(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                 disabled={isSubmitting}
               >
                 <option value="">Select a skill</option>
                 {SKILLS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Skill Level
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Skill Level</label>
               <select
                 value={skillLevel}
                 onChange={(e) => setSkillLevel(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                 disabled={isSubmitting}
               >
                 <option value="">Select a level</option>
                 {SKILL_LEVELS.map((level) => (
                   <option key={level} value={level}>
-                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                    {level[0].toUpperCase() + level.slice(1)}
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
+          {/* Duration */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Duration
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
             <input
               type="text"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 6 weeks"
+              className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              placeholder="e.g., 4 weeks"
               disabled={isSubmitting}
             />
           </div>
 
+          {/* Thumbnail Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Thumbnail Image
-            </label>
-            <div className="mt-1 flex items-center">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail Image</label>
+            <div className="flex items-center gap-4">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleThumbnailChange}
-                className="hidden"
                 id="thumbnail"
+                className="hidden"
                 disabled={isSubmitting}
               />
               <label
                 htmlFor="thumbnail"
-                className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
               >
-                <Upload className="h-5 w-5 mr-2" />
+                <Upload className="h-4 w-4 mr-2" />
                 Choose Image
               </label>
               {thumbnail && (
-                <span className="ml-4 text-sm text-gray-500">Image uploaded</span>
+                <span className="text-sm text-green-600 font-medium">Image uploaded</span>
               )}
             </div>
           </div>
 
+          {/* Lessons */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Lessons</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">Lessons</h3>
               <button
                 type="button"
                 onClick={addLesson}
-                className="flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="flex items-center text-sm text-blue-600 hover:text-blue-700"
                 disabled={isSubmitting}
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -232,45 +223,38 @@ export function CreateLearningPlan() {
             </div>
 
             {lessons.map((lesson, index) => (
-              <div
-                key={index}
-                className="border rounded-lg p-4 space-y-4 relative"
-              >
+              <div key={index} className="border border-gray-200 rounded-md p-4 relative">
                 {lessons.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeLesson(index)}
-                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-600"
                     disabled={isSubmitting}
                   >
                     <X className="h-4 w-4" />
                   </button>
                 )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lesson Title
-                  </label>
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Lesson Title</label>
                   <input
                     type="text"
                     value={lesson.title}
                     onChange={(e) => handleLessonChange(index, 'title', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter lesson title"
+                    className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    placeholder="Lesson title"
                     disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lesson Description
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
                     value={lesson.description}
                     onChange={(e) => handleLessonChange(index, 'description', e.target.value)}
                     rows={2}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Describe what will be covered in this lesson"
+                    className="w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    placeholder="What will this lesson teach?"
                     disabled={isSubmitting}
                   />
                 </div>
@@ -278,11 +262,12 @@ export function CreateLearningPlan() {
             ))}
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          {/* Action Buttons */}
+          <div className="pt-4 flex justify-end gap-3">
             <button
               type="button"
               onClick={() => navigate('/learning-plans')}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-800"
+              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
               disabled={isSubmitting}
             >
               Cancel
@@ -290,9 +275,9 @@ export function CreateLearningPlan() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create Learning Plan'}
+              {isSubmitting ? 'Creating...' : 'Create Plan'}
             </button>
           </div>
         </form>

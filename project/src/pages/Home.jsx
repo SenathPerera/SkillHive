@@ -18,27 +18,21 @@ export function Home() {
         setLoading(true);
         setError(null);
 
-        // Get user's following list
         const userProfile = await apiService.getPrivateProfile(user?.id);
         const followingIds = new Set(userProfile?.followingIds || []);
-        
-        // Fetch all posts
+
         const allPosts = await apiService.getPosts();
-        
-        // Filter posts from followed users and own posts
         const filteredPosts = allPosts.filter(post => {
           const postUserId = post.user_id || post.userId;
           return followingIds.has(postUserId) || postUserId === user?.id;
         });
 
-        // Sort by creation date
         const sortedPosts = filteredPosts.sort((a, b) => {
           const dateA = new Date(b.createdAt || b.created_at);
           const dateB = new Date(a.createdAt || a.created_at);
           return dateA - dateB;
         });
 
-        // Fetch engagement data for each post
         const postsWithEngagement = await Promise.all(
           sortedPosts.map(async (post) => {
             try {
@@ -46,12 +40,12 @@ export function Home() {
                 apiService.getComments(post.id),
                 apiService.getLikes(post.id)
               ]);
-              
+
               return {
                 post,
                 comments: Array.isArray(comments) ? comments : [],
                 likes: Array.isArray(likes) ? likes : [],
-                userLike: Array.isArray(likes) 
+                userLike: Array.isArray(likes)
                   ? likes.find(like => like.userId === user?.id || like.user_id === user?.id)
                   : undefined
               };
@@ -61,7 +55,7 @@ export function Home() {
             }
           })
         );
-        
+
         setPosts(postsWithEngagement);
       } catch (error) {
         setError(error.message || 'Failed to fetch posts');

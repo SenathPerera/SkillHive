@@ -50,29 +50,30 @@ export function Comment({ comment, postUserId, onDelete, onEdit }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4">
+    <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
       <div className="flex items-start justify-between">
-        <div className="flex items-center">
-          <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-            <span className="text-sm font-medium text-primary-600">
-              {getUserInitial()}
-            </span>
+        <div className="flex items-center space-x-3">
+          <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm">
+            {getUserInitial()}
           </div>
-          <div className="ml-3">
+          <div>
             <p className="text-sm font-medium text-gray-900">User {userId}</p>
             <p className="text-xs text-gray-500">
-              {formatDistanceToNow(new Date(comment.created_at || comment.createdAt), { addSuffix: true })}
+              {formatDistanceToNow(new Date(comment.created_at || comment.createdAt), {
+                addSuffix: true,
+              })}
             </p>
           </div>
         </div>
-        
+
         {canModify && !isEditing && (
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             {user?.id === userId && (
               <button
                 onClick={() => setIsEditing(true)}
                 disabled={isSubmitting}
-                className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                className="text-gray-400 hover:text-gray-600 disabled:opacity-40 transition"
+                title="Edit"
               >
                 <Edit2 className="h-4 w-4" />
               </button>
@@ -80,42 +81,49 @@ export function Comment({ comment, postUserId, onDelete, onEdit }) {
             <button
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="text-gray-400 hover:text-red-600 disabled:opacity-50"
+              className="text-gray-400 hover:text-red-600 disabled:opacity-40 transition"
+              title="Delete"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
         )}
       </div>
-      
+
       {isEditing ? (
-        <div className="mt-3">
+        <div className="mt-4">
           <textarea
             value={editedContent}
             onChange={(e) => setEditedContent(e.target.value)}
-            className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
             rows={3}
             disabled={isSubmitting}
+            className="w-full rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none p-2 text-sm resize-none disabled:opacity-50"
           />
           <div className="mt-2 flex justify-end space-x-2">
             <button
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50"
+              className="text-gray-500 hover:text-gray-700 transition disabled:opacity-50"
+              title="Cancel"
             >
               <X className="h-4 w-4" />
             </button>
             <button
               onClick={handleEdit}
-              disabled={isSubmitting || !editedContent.trim() || editedContent.trim() === comment.content}
-              className="px-3 py-1 text-sm text-primary-600 hover:text-primary-700 disabled:opacity-50"
+              disabled={
+                isSubmitting || !editedContent.trim() || editedContent.trim() === comment.content
+              }
+              className="text-blue-600 hover:text-blue-800 transition disabled:opacity-50"
+              title="Save"
             >
               <Check className="h-4 w-4" />
             </button>
           </div>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-gray-600">{comment.content}</p>
+        <p className="mt-4 text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+          {comment.content}
+        </p>
       )}
     </div>
   );

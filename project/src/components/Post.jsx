@@ -7,12 +7,12 @@ import { useAuthStore } from '../store/authStore';
 import { Edit2, Trash2, Loader2, X, Check } from 'lucide-react';
 import PropTypes from 'prop-types';
 
-export function Post({ 
-  post, 
-  comments: initialComments = [], 
-  likes = [], 
-  userLike = null, 
-  onDelete = null 
+export function Post({
+  post,
+  comments: initialComments = [],
+  likes = [],
+  userLike = null,
+  onDelete = null,
 }) {
   const { user } = useAuthStore();
   const [comments, setComments] = useState(initialComments);
@@ -41,10 +41,8 @@ export function Post({
   const handleEditComment = async (commentId, newContent) => {
     try {
       await apiService.updateComment(post.id, commentId, { content: newContent });
-      setComments(comments.map(comment =>
-        comment.id === commentId
-          ? { ...comment, content: newContent }
-          : comment
+      setComments(comments.map((comment) =>
+        comment.id === commentId ? { ...comment, content: newContent } : comment
       ));
     } catch (error) {
       console.error('Failed to edit comment:', error);
@@ -54,7 +52,7 @@ export function Post({
   const handleDeleteComment = async (commentId) => {
     try {
       await apiService.deleteComment(post.id, commentId);
-      setComments(comments.filter(comment => comment.id !== commentId));
+      setComments(comments.filter((comment) => comment.id !== commentId));
     } catch (error) {
       console.error('Failed to delete comment:', error);
     }
@@ -67,11 +65,11 @@ export function Post({
       setIsLikeLoading(true);
       if (isLiked) {
         await apiService.unlikePost(post.id);
-        setLikesCount(prev => prev - 1);
+        setLikesCount((prev) => prev - 1);
         setIsLiked(false);
       } else {
         await apiService.likePost(post.id);
-        setLikesCount(prev => prev + 1);
+        setLikesCount((prev) => prev + 1);
         setIsLiked(true);
       }
     } catch (error) {
@@ -95,12 +93,11 @@ export function Post({
       };
 
       await apiService.updatePost(post.id, updatedPost);
-      post.title = editedTitle.trim();
-      post.content = editedContent.trim();
+      post.title = updatedPost.title;
+      post.content = updatedPost.content;
       setIsEditing(false);
     } catch (error) {
       setError(error.message || 'Failed to update post');
-      console.error('Error updating post:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -112,15 +109,12 @@ export function Post({
     try {
       setIsSubmitting(true);
       await apiService.deletePost(post.id);
-      if (onDelete) {
-        onDelete(post.id);
-      }
+      if (onDelete) onDelete(post.id);
     } catch (error) {
       setError(error.message || 'Failed to delete post');
-      console.error('Error deleting post:', error);
-      setShowDeleteModal(false);
     } finally {
       setIsSubmitting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -132,37 +126,35 @@ export function Post({
   };
 
   const renderMedia = () => {
-    if (!post.media || !Array.isArray(post.media) || post.media.length === 0) {
-      return null;
-    }
+    if (!Array.isArray(post.media) || post.media.length === 0) return null;
 
     return (
-      <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {post.media.map((item, index) => {
           if (!item) return null;
 
           const mediaUrl = `/api/media/${item.id}`;
           const mediaType = item.type || (item.contentType || '').split('/')[0];
-          
+
           return (
-            <div key={item.id || index} className="relative aspect-w-16 aspect-h-9">
+            <div key={item.id || index} className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
               {mediaType === 'image' ? (
                 <img
                   src={mediaUrl}
                   alt={item.description || `Media ${index + 1}`}
-                  className="rounded-lg w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                   loading="lazy"
                 />
               ) : mediaType === 'video' ? (
                 <video
                   src={mediaUrl}
                   controls
-                  className="rounded-lg w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                   preload="metadata"
                 />
               ) : null}
               {item.description && (
-                <p className="mt-2 text-sm text-gray-500">{item.description}</p>
+                <p className="mt-1 text-xs text-gray-500">{item.description}</p>
               )}
             </div>
           );
@@ -171,19 +163,16 @@ export function Post({
     );
   };
 
-  const getUserInitial = () => {
-    return postUserId ? postUserId.charAt(0).toUpperCase() : '?';
-  };
+  const getUserInitial = () => (postUserId ? postUserId.charAt(0).toUpperCase() : '?');
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
       <div className="p-6">
+        {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-              <span className="text-lg font-medium text-blue-600">
-                {getUserInitial()}
-              </span>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold">
+              {getUserInitial()}
             </div>
             <div>
               {isEditing ? (
@@ -191,19 +180,21 @@ export function Post({
                   type="text"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
-                  className="text-lg font-medium text-gray-900 w-full px-2 py-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="text-lg font-semibold text-gray-800 w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                   disabled={isSubmitting}
                 />
               ) : (
-                <h3 className="text-lg font-medium text-gray-900">{post.title}</h3>
+                <h3 className="text-lg font-semibold text-gray-800">{post.title}</h3>
               )}
-              <p className="text-sm text-gray-500">
-                {formatDistanceToNow(new Date(post.created_at || post.createdAt), { addSuffix: true })}
+              <p className="text-xs text-gray-500">
+                {formatDistanceToNow(new Date(post.created_at || post.createdAt), {
+                  addSuffix: true,
+                })}
               </p>
             </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
+
+          <div className="flex items-center gap-2">
             <LikeButton
               postId={post.id}
               likes={likesCount}
@@ -211,9 +202,8 @@ export function Post({
               isLoading={isLikeLoading}
               onToggleLike={handleToggleLike}
             />
-            
             {canModify && !isEditing && (
-              <div className="flex items-center space-x-2">
+              <>
                 <button
                   onClick={() => setIsEditing(true)}
                   className="p-1 text-gray-400 hover:text-gray-600"
@@ -228,38 +218,40 @@ export function Post({
                 >
                   <Trash2 className="h-5 w-5" />
                 </button>
-              </div>
+              </>
             )}
           </div>
         </div>
 
+        {/* Error message */}
         {error && (
-          <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">
+          <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-md">
             {error}
           </div>
         )}
 
+        {/* Content */}
         {isEditing ? (
-          <div className="space-y-4">
+          <div className="space-y-4 mb-4">
             <textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full px-3 py-2 text-gray-600 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={4}
+              className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-2 focus:ring-blue-500"
               disabled={isSubmitting}
             />
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleCancel}
                 disabled={isSubmitting}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                className="text-sm text-gray-600 hover:text-gray-800"
               >
                 <X className="h-4 w-4" />
               </button>
               <button
                 onClick={handleEdit}
                 disabled={isSubmitting || !editedTitle.trim() || !editedContent.trim()}
-                className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -270,11 +262,13 @@ export function Post({
             </div>
           </div>
         ) : (
-          <p className="text-gray-600 mb-4">{post.content}</p>
+          <p className="text-sm text-gray-700 mb-4">{post.content}</p>
         )}
 
+        {/* Media */}
         {renderMedia()}
 
+        {/* Comments */}
         <CommentSection
           postId={post.id}
           postUserId={postUserId}
@@ -285,37 +279,35 @@ export function Post({
         />
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Delete Post
-            </h3>
-            <p className="text-gray-600 mb-6">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete Post</h3>
+            <p className="text-sm text-gray-600 mb-4">
               Are you sure you want to delete this post? This action cannot be undone.
             </p>
-            <div className="flex justify-end space-x-3">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isSubmitting}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 disabled:opacity-50"
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
+                className="px-4 py-2 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 flex items-center gap-2 disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Deleting...
                   </>
                 ) : (
                   <>
-                    <Trash2 className="h-4 w-4 mr-2" />
+                    <Trash2 className="h-4 w-4" />
                     Delete
                   </>
                 )}
@@ -337,34 +329,17 @@ Post.propTypes = {
     content: PropTypes.string.isRequired,
     created_at: PropTypes.string,
     createdAt: PropTypes.string,
-    media: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      type: PropTypes.string,
-      contentType: PropTypes.string,
-      description: PropTypes.string,
-    })),
+    media: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        type: PropTypes.string,
+        contentType: PropTypes.string,
+        description: PropTypes.string,
+      })
+    ),
   }).isRequired,
-  comments: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    user_id: PropTypes.string,
-    userId: PropTypes.string,
-    content: PropTypes.string.isRequired,
-    created_at: PropTypes.string,
-    createdAt: PropTypes.string,
-  })),
-  likes: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    user_id: PropTypes.string,
-    userId: PropTypes.string,
-    created_at: PropTypes.string,
-    createdAt: PropTypes.string,
-  })),
-  userLike: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    user_id: PropTypes.string,
-    userId: PropTypes.string,
-    created_at: PropTypes.string,
-    createdAt: PropTypes.string,
-  }),
+  comments: PropTypes.array,
+  likes: PropTypes.array,
+  userLike: PropTypes.object,
   onDelete: PropTypes.func,
 };

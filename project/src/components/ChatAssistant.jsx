@@ -11,7 +11,6 @@ export default function ChatAssistant({ user, setUser }) {
   const recognitionRef = useRef(null);
   const [expectingField, setExpectingField] = useState(null);
 
-  // Setup speech recognition
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window)) return;
 
@@ -26,10 +25,7 @@ export default function ChatAssistant({ user, setUser }) {
       setTimeout(() => handleSend(transcript), 0);
     };
 
-    recognition.onend = () => {
-      setListening(false);
-    };
-
+    recognition.onend = () => setListening(false);
     recognitionRef.current = recognition;
   }, []);
 
@@ -48,13 +44,11 @@ export default function ChatAssistant({ user, setUser }) {
     if (!messageText) return;
     addMessage(messageText, 'user');
     setInput('');
-  
+
     const text = typeof messageText === 'string' ? messageText.toLowerCase() : '';
-  
-    // Handle expected fields
+
     if (expectingField) {
       const value = messageText.trim();
-  
       const fieldMap = {
         email: { label: 'email', payload: { email: value } },
         address: { label: 'address', payload: { address: value } },
@@ -62,9 +56,9 @@ export default function ChatAssistant({ user, setUser }) {
         lastName: { label: 'last name', payload: { lastName: value } },
         birthday: { label: 'birthday', payload: { birthday: value } },
       };
-  
+
       const fieldInfo = fieldMap[expectingField];
-  
+
       if (expectingField === 'email') {
         const emailMatch = value.match(/\b\S+@\S+\.\S+\b/);
         if (!emailMatch) {
@@ -73,7 +67,7 @@ export default function ChatAssistant({ user, setUser }) {
         }
         fieldInfo.payload.email = emailMatch[0];
       }
-  
+
       if (expectingField === 'birthday') {
         const isValidDate = !isNaN(Date.parse(value));
         if (!isValidDate) {
@@ -81,20 +75,27 @@ export default function ChatAssistant({ user, setUser }) {
           return;
         }
       }
-  
+
       try {
-        const updated = await apiService.updateProfile(user.id, fieldInfo.payload);
-        setUser({ ...user, ...updated });
+        if (!user?.id) {
+          console.warn("ChatAssistant: user.id is undefined");
+          addMessage("You're not signed in or your session has expired.", 'bot');
+          return;
+        }
+
+        const updated = await apiService.updateProfileChatAssistant(user.id, fieldInfo.payload);
+        console.log("Updated user:", updated);
+        setUser((prev) => ({ ...prev, ...updated, id: prev.id }));
         addMessage(`Your ${fieldInfo.label} has been updated to "${value}"!`, 'bot');
-      } catch (err) {
+      } catch (error) {
+        console.error("Update failed:", error);
         addMessage(`Failed to update ${fieldInfo.label}. Try again later.`, 'bot');
       }
-  
+
       setExpectingField(null);
       return;
     }
-  
-    // Detect intent and set field
+
     if (text.includes('change') || text.includes('update')) {
       if (text.includes('email')) {
         addMessage('Sure, what is your new email?', 'bot');
@@ -122,47 +123,52 @@ export default function ChatAssistant({ user, setUser }) {
         return;
       }
     }
-  
+
     addMessage("I didn't get that. Try saying things like 'change my first name' or 'update my birthday'.", 'bot');
   };
-  
-
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 z-50">
-      <div className="bg-blue-600 text-white p-3 text-sm font-semibold">
+    <div className="fixed bottom-6 right-6 w-96 max-w-full bg-white shadow-xl rounded-xl border border-gray-200 z-50">
+      <div className="bg-blue-700 text-white px-4 py-3 text-base font-semibold rounded-t-xl">
         Assistant
       </div>
-      <div className="p-3 h-64 overflow-y-auto space-y-2 text-sm">
+      <div className="p-4 h-72 overflow-y-auto space-y-3 text-sm scroll-smooth">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`p-2 rounded-md ${
+            className={`px-3 py-2 rounded-lg max-w-xs ${
               msg.from === 'bot'
                 ? 'bg-gray-100 text-gray-800'
-                : 'bg-blue-100 text-blue-900 text-right ml-auto'
+                : 'bg-blue-100 text-blue-900 self-end ml-auto'
             }`}
           >
             {msg.text}
           </div>
         ))}
       </div>
-      <div className="flex border-t">
+      <div className="flex items-center border-t border-gray-200 px-3 py-2 gap-2">
         <input
           type="text"
-          className="flex-1 px-3 py-2 text-sm border-r outline-none"
+          className="flex-1 bg-transparent text-sm focus:outline-none px-2 py-1 placeholder-gray-400"
           placeholder="Type or use mic..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button onClick={handleSend} className="px-3 bg-blue-600 text-white text-sm">
+        <button
+          onClick={handleSend}
+          className="px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition"
+        >
           Send
         </button>
         <button
           onClick={startListening}
           disabled={listening}
-          className={`px-3 ${listening ? 'bg-gray-400' : 'bg-green-600'} text-white`}
+          className={`px-2.5 py-1.5 rounded-md transition ${
+            listening
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-green-600 hover:bg-green-700'
+          } text-white`}
         >
           {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </button>

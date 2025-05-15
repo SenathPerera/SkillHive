@@ -32,28 +32,27 @@ export function CommentSection({
   };
 
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
+    <section className="mt-8">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
         Comments {comments.length > 0 && `(${comments.length})`}
       </h3>
-      
+
       {user && (
         <form onSubmit={handleSubmit} className="mb-6">
-          <div className="flex items-start space-x-3">
-            <div className="flex-grow">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                rows={2}
-                disabled={isSubmitting}
-              />
-            </div>
+          <div className="flex items-start gap-3">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Add a comment..."
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 resize-none"
+              rows={3}
+              disabled={isSubmitting}
+            />
             <button
               type="submit"
               disabled={!newComment.trim() || isSubmitting}
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="flex-shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              title="Submit comment"
             >
               <Send className="h-4 w-4" />
             </button>
@@ -73,18 +72,19 @@ export function CommentSection({
             />
           ))
         ) : (
-          <p className="text-gray-500 text-center py-4">
-            No comments yet. {user ? 'Be the first to comment!' : 'Sign in to add a comment!'}
+          <p className="text-gray-500 text-center py-6 text-sm">
+            No comments yet.{' '}
+            {user ? 'Be the first to comment!' : 'Sign in to add a comment!'}
           </p>
         )}
       </div>
 
       {!user && comments.length > 0 && (
-        <p className="text-sm text-gray-500 text-center mt-4">
-          Sign in to join the conversation!
+        <p className="text-sm text-gray-500 text-center mt-6">
+          Sign in to join the conversation.
         </p>
       )}
-    </div>
+    </section>
   );
 }
 

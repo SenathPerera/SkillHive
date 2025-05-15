@@ -70,6 +70,10 @@ export const apiService = {
     return await api.put(`/users/${userId}`, userData);
   },
 
+  updateProfileChatAssistant: async (userId, userData) => {
+    return await api.patch(`/users/${userId}`, userData);
+  },
+
   deleteProfile: async (userId) => {
     return await api.delete(`/users/${userId}`);
   },
