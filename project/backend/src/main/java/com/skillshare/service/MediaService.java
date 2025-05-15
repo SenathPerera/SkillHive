@@ -29,6 +29,7 @@ public class MediaService {
     private static final Map<String, String[]> ALLOWED_TYPES = new HashMap<>() {{
         put("image", new String[]{"image/jpeg", "image/png", "image/gif"});
         put("video", new String[]{"video/mp4", "video/quicktime"});
+        put("document", new String[]{ MediaType.APPLICATION_PDF_VALUE });
     }};
     
     public MediaItem saveMedia(MultipartFile file, String description) throws IOException {
@@ -117,11 +118,12 @@ public class MediaService {
                     break;
                 }
             }
+            if (isValidType) break;
         }
         
         if (!isValidType) {
             throw new IllegalArgumentException(
-                "Invalid file type. Only images (JPEG, PNG, GIF) and videos (MP4, MOV) are allowed"
+                "Invalid file type. Only images (JPEG, PNG, GIF), videos (MP4, MOV), and PDFs are allowed"
             );
         }
     }
@@ -131,6 +133,8 @@ public class MediaService {
             return "image";
         } else if (contentType.startsWith("video/")) {
             return "video";
+        } else if (MediaType.APPLICATION_PDF_VALUE.equals(contentType)) {
+            return "document";
         }
         throw new IllegalArgumentException("Unsupported media type: " + contentType);
     }

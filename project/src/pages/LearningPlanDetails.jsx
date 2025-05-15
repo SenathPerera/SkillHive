@@ -47,6 +47,32 @@ export function LearningPlanDetails() {
       });
   }, [id]);
 
+  const onStart = () => {
+    apiService.enrollLearningPlan(id)
+      .then(prog => {
+        setProgress(prog);
+        setEnrolled(true);
+      })
+      .catch(err => {
+        console.error('Error enrolling in plan:', err);
+        alert('Could not start plan. Please try again.');
+      });
+  };
+
+  const toggleLesson = (idx) => {
+    const newSet = new Set(progress.completedLessons);
+    if (newSet.has(idx)) newSet.delete(idx);
+    else newSet.add(idx);
+    const updatedArray = Array.from(newSet);
+    setProgress(prev => ({ ...prev, completedLessons: updatedArray }));
+    apiService.updatePlanProgress(id, updatedArray)
+      .then(updated => setProgress(updated))
+      .catch(err => {
+        console.error('Error updating progress:', err);
+        alert('Failed to update lesson status.');
+      });
+  };
+
   const handleDelete = async () => {
     console.log('Attempting to delete plan with id:', id);
     try {
@@ -86,38 +112,6 @@ export function LearningPlanDetails() {
       </div>
     );
   }
-
-  // enrollment handler
-  const onStart = () => {
-    apiService.enrollLearningPlan(id)
-      .then(prog => {
-        setProgress(prog);
-        setEnrolled(true);
-      })
-      .catch(err => {
-        console.error('Error enrolling in plan:', err);
-        alert('Could not start plan. Please try again.');
-      });
-  };
-
-  // toggle lesson completion
-  const toggleLesson = (idx) => {
-    const newSet = new Set(progress.completedLessons);
-    if (newSet.has(idx)) newSet.delete(idx);
-    else newSet.add(idx);
-
-    const updatedArray = Array.from(newSet);
-    setProgress(prev => ({ ...prev, completedLessons: updatedArray }));
-
-    apiService.updatePlanProgress(id, updatedArray)
-      .then(updated => {
-        setProgress(updated);
-      })
-      .catch(err => {
-        console.error('Error updating progress:', err);
-        alert('Failed to update lesson status.');
-      });
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -164,6 +158,7 @@ export function LearningPlanDetails() {
                 {plan.duration}
               </span>
             </div>
+
             <p className="text-gray-600 mb-8 mt-4">{plan.description}</p>
 
             {/* Start Plan button */}
@@ -225,16 +220,31 @@ export function LearningPlanDetails() {
                         {lesson.description && (
                           <p className="mt-1 text-gray-600">{lesson.description}</p>
                         )}
+
                         {lesson.videoId && (
-                          <div className="mt-4 aspect-w-16 aspect-h-9">
-                            <video
-                              src={`/api/media/${lesson.videoId}`}
-                              controls
-                              className="rounded-lg"
-                              preload="metadata"
-                            />
-                          </div>
+                          lesson.videoId.startsWith('http') ? (
+                            <p className="mt-4 text-blue-600">
+                              <a
+                                href={lesson.videoId}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline"
+                              >
+                                View Video
+                              </a>
+                            </p>
+                          ) : (
+                            <div className="mt-4 aspect-w-16 aspect-h-9">
+                              <video
+                                src={`/api/media/${lesson.videoId}`}
+                                controls
+                                className="rounded-lg"
+                                preload="metadata"
+                              />
+                            </div>
+                          )
                         )}
+
                         {lesson.documentIds && lesson.documentIds.length > 0 && (
                           <div className="mt-4">
                             <h4 className="text-sm font-medium text-gray-900 mb-2">
@@ -265,16 +275,31 @@ export function LearningPlanDetails() {
                         {lesson.description && (
                           <p className="mt-1 text-gray-600">{lesson.description}</p>
                         )}
+
                         {lesson.videoId && (
-                          <div className="mt-4 aspect-w-16 aspect-h-9">
-                            <video
-                              src={`/api/media/${lesson.videoId}`}
-                              controls
-                              className="rounded-lg"
-                              preload="metadata"
-                            />
-                          </div>
+                          lesson.videoId.startsWith('http') ? (
+                            <p className="mt-4 text-blue-600">
+                              <a
+                                href={lesson.videoId}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="underline"
+                              >
+                                View Video
+                              </a>
+                            </p>
+                          ) : (
+                            <div className="mt-4 aspect-w-16 aspect-h-9">
+                              <video
+                                src={`/api/media/${lesson.videoId}`}
+                                controls
+                                className="rounded-lg"
+                                preload="metadata"
+                              />
+                            </div>
+                          )
                         )}
+
                         {lesson.documentIds && lesson.documentIds.length > 0 && (
                           <div className="mt-4">
                             <h4 className="text-sm font-medium text-gray-900 mb-2">
