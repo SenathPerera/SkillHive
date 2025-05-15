@@ -15,9 +15,9 @@ export function Auth() {
   const [birthday, setBirthday] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { signIn, signUp, error: authError, clearError } = useAuthStore();
-  const { user: auth0User, isAuthenticated, getAccessTokenSilently } = useAuth0();
+  const { user: auth0User, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,31 +26,6 @@ export function Auth() {
     }
   }, [authError]);
 
-  useEffect(() => {
-    const handleSocialLogin = async () => {
-      if (isAuthenticated && auth0User) {
-        try {
-          const token = await getAccessTokenSilently();
-          // Handle social login success
-          // You would typically send this token to your backend to:
-          // 1. Verify the token
-          // 2. Create or update the user in your database
-          // 3. Return your own JWT token
-          
-          const response = await signIn(auth0User.email, token, true);
-          if (response) {
-            navigate('/', { replace: true });
-          }
-        } catch (error) {
-          console.error('Social login error:', error);
-          setError('Failed to complete social login');
-        }
-      }
-    };
-
-    handleSocialLogin();
-  }, [isAuthenticated, auth0User, getAccessTokenSilently, signIn, navigate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -58,7 +33,7 @@ export function Auth() {
     try {
       setIsSubmitting(true);
       setError('');
-      
+
       if (isSignUp) {
         if (!firstName.trim() || !lastName.trim()) {
           throw new Error('First name and last name are required');
@@ -66,6 +41,7 @@ export function Auth() {
         if (!birthday) {
           throw new Error('Birthday is required');
         }
+
         await signUp({
           email: email.trim(),
           password,
@@ -77,7 +53,7 @@ export function Auth() {
       } else {
         await signIn(email.trim(), password);
       }
-      
+
       navigate('/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -98,8 +74,26 @@ export function Auth() {
     clearError();
   };
 
-  const handleSocialLoginSuccess = () => {
-    setError('');
+  const handleSocialLoginSuccess = async () => {
+    try {
+      if (!auth0User?.email) {
+        setError('Auth0 login did not return an email address');
+        return;
+      }
+
+      const token = await getAccessTokenSilently();
+      const response = await signIn(auth0User.email, token, true);
+
+      if (response) {
+        setError('');
+        navigate('/', { replace: true });
+      } else {
+        setError('Unable to sign in with social account');
+      }
+    } catch (error) {
+      console.error('Social login error:', error);
+      setError('Failed to complete social login');
+    }
   };
 
   const handleSocialLoginError = (error) => {
@@ -110,7 +104,7 @@ export function Auth() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <Share2 className="h-12 w-12 text-primary-600" />
+          <Share2 className="h-12 w-12 text-blue-600" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           {isSignUp ? 'Join SkillHive' : 'Welcome back to SkillHive'}
@@ -133,7 +127,7 @@ export function Auth() {
                       required
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                   <div>
@@ -146,7 +140,7 @@ export function Auth() {
                       required
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     />
                   </div>
                 </div>
@@ -160,7 +154,7 @@ export function Auth() {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     rows={2}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
@@ -174,12 +168,12 @@ export function Auth() {
                     required
                     value={birthday}
                     onChange={(e) => setBirthday(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </>
             )}
-            
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -190,7 +184,7 @@ export function Auth() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
@@ -204,7 +198,7 @@ export function Auth() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
@@ -215,7 +209,7 @@ export function Auth() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             </button>
@@ -229,7 +223,7 @@ export function Auth() {
           <div className="mt-6">
             <button
               onClick={handleToggleMode}
-              className="w-full text-center text-sm text-primary-600 hover:text-primary-500"
+              className="w-full text-center text-sm text-blue-600 hover:text-blue-500"
             >
               {isSignUp
                 ? 'Already have an account? Sign in'

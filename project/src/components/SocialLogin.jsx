@@ -4,31 +4,32 @@ import { Github } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 export function SocialLogin({ onSuccess, onError }) {
-  const { loginWithPopup, isLoading } = useAuth0();
+  const {
+    loginWithPopup,
+    getAccessTokenSilently,
+    user,
+    isLoading,
+  } = useAuth0();
 
-  const handleGoogleLogin = async () => {
+  const handleSocialLogin = async (provider) => {
     try {
       await loginWithPopup({
-        connection: 'google-oauth2',
+        connection: provider,
         prompt: 'select_account',
       });
-      onSuccess?.();
-    } catch (error) {
-        console.error('Google login failed:', error);
-        alert(error?.error_description || error?.message || 'Unknown error');
-        onError?.(error);
+
+      const token = await getAccessTokenSilently();
+      console.log(`${provider} access token:`, token);
+      console.log(`${provider} user:`, user);
+
+      if (user) {
+        onSuccess?.();
+      } else {
+        throw new Error('User not loaded after login');
       }
-  };
-
-  const handleGithubLogin = async () => {
-    try {
-      await loginWithPopup({
-        connection: 'github',
-        prompt: 'select_account',
-      });
-      onSuccess?.();
     } catch (error) {
-      console.error('GitHub login failed:', error);
+      console.error(`${provider} login failed:`, error);
+      alert(error?.error_description || error?.message || 'Login failed');
       onError?.(error);
     }
   };
@@ -47,7 +48,7 @@ export function SocialLogin({ onSuccess, onError }) {
       <div className="grid grid-cols-2 gap-4">
         <button
           type="button"
-          onClick={handleGoogleLogin}
+          onClick={() => handleSocialLogin('google-oauth2')}
           disabled={isLoading}
           className="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -61,7 +62,7 @@ export function SocialLogin({ onSuccess, onError }) {
 
         <button
           type="button"
-          onClick={handleGithubLogin}
+          onClick={() => handleSocialLogin('github')}
           disabled={isLoading}
           className="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
