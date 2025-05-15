@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, Award, ChevronLeft, Loader2, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { apiService } from '../lib/api';
+import { PomodoroTimer } from '../components/PomodoroTimer';
 
 export function LearningPlanDetails() {
   const { id } = useParams();
@@ -207,7 +208,9 @@ export function LearningPlanDetails() {
               <div className="space-y-6">
                 {plan.lessons.map((lesson, index) =>
                   enrolled ? (
-                    <label key={index} className="flex items-start space-x-3">
+                    <div key={index} className="flex flex-col space-y-3">
+                    <label className="flex items-start space-x-3">
+                      <div className="flex items-start space-x-3">
                       <input
                         type="checkbox"
                         checked={progress.completedLessons.includes(index)}
@@ -266,7 +269,17 @@ export function LearningPlanDetails() {
                           </div>
                         )}
                       </div>
+                      </div> 
                     </label>
+                    <PomodoroTimer
+                        lessonIndex={index}
+                        planId={id}
+                        onSessionComplete={(lessonIdx, seconds) => {
+                          apiService.logTimeSpent(id, lessonIdx, seconds)
+                          .catch(err => console.error('Failed to log time:', err));
+                        }}
+                      />
+                      </div>
                   ) : (
                     <div key={index} className="flex items-start space-x-3">
                       <BookOpen className="h-5 w-5 text-gray-400 mt-1" />
